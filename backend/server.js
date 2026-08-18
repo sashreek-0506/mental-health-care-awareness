@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
+import path from "path";
+import { fileURLToPath } from "url";
 import { connectDB } from "./config/db.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
@@ -12,6 +14,9 @@ import resourceRoutes from "./routes/resourceRoutes.js";
 import privateSpaceRoutes from "./routes/privateSpaceRoutes.js";
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -42,6 +47,16 @@ app.use("/api/moods", moodRoutes);
 app.use("/api/music", musicRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/private-space", privateSpaceRoutes);
+
+// Serve static frontend files in production
+if (process.env.NODE_ENV === "production") {
+  const frontendDist = path.join(__dirname, "../frontend/dist");
+  app.use(express.static(frontendDist));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api")) return next();
+    res.sendFile(path.join(frontendDist, "index.html"));
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);
