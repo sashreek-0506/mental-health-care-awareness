@@ -7,6 +7,7 @@ import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import CheckIn from "./pages/CheckIn.jsx";
 import CalmSpace from "./pages/CalmSpace.jsx";
+import PrivateSpace from "./pages/PrivateSpace.jsx";
 import Resources from "./pages/Resources.jsx";
 
 export default function App() {
@@ -38,6 +39,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <CalmSpace />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/private-space"
+          element={
+            <ProtectedRoute>
+              <PrivateSpace />
             </ProtectedRoute>
           }
         />

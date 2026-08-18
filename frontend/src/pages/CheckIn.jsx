@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../api/axios.js";
 import MoodGrid from "../components/MoodGrid.jsx";
 import IntensitySlider from "../components/IntensitySlider.jsx";
+import GenreSelector from "../components/GenreSelector.jsx";
 import TrackCard from "../components/TrackCard.jsx";
 import CrisisStrip from "../components/CrisisStrip.jsx";
 
@@ -10,6 +11,7 @@ export default function CheckIn() {
   const [mood, setMood] = useState(null);
   const [intensity, setIntensity] = useState(3);
   const [note, setNote] = useState("");
+  const [genre, setGenre] = useState("all");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null); // { crisis, resources } | { streakCount, suggestion }
@@ -23,7 +25,7 @@ export default function CheckIn() {
     setError("");
     setSubmitting(true);
     try {
-      const res = await api.post("/moods", { mood, intensity, note });
+      const res = await api.post("/moods", { mood, intensity, note, genre });
       setResult(res.data);
     } catch (err) {
       setError(err.response?.data?.message || "Couldn't save that check-in. Please try again.");
@@ -36,6 +38,7 @@ export default function CheckIn() {
     setMood(null);
     setIntensity(3);
     setNote("");
+    setGenre("all");
     setResult(null);
   }
 
@@ -99,9 +102,11 @@ export default function CheckIn() {
 
         {mood && <IntensitySlider value={intensity} onChange={setIntensity} />}
 
+        {mood && <GenreSelector value={genre} onChange={setGenre} />}
+
         <div>
           <label htmlFor="note" className="text-sm text-mist block mb-1.5">
-            What happened today? <span className="text-mist-dim">(optional)</span>
+            What happened today? <span className="text-mist-dim">(optional note for ML classifier)</span>
           </label>
           <textarea
             id="note"

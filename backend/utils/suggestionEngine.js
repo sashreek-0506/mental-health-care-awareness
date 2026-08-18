@@ -182,11 +182,16 @@ function getTrustedDayContext(dayContext) {
   return dayContext.label;
 }
 
-function scoreTrack(track, mood, band, dayContextLabel) {
+function scoreTrack(track, mood, band, dayContextLabel, genre) {
   let score = 0;
 
   if (track.moods.includes(mood)) score += 5;
   if (dayContextLabel && track.dayContexts?.includes(dayContextLabel)) score += 6;
+
+  // Heavy score boost for matching user's requested genre preference
+  if (genre && genre !== "all" && track.tag === genre) {
+    score += 10;
+  }
 
   if (band === "high") {
     if (CALM_TAGS.has(track.tag)) score += 2;
@@ -200,14 +205,18 @@ function scoreTrack(track, mood, band, dayContextLabel) {
   return score;
 }
 
-function pickTracks(mood, band, limit = 3, dayContext = null) {
+function pickTracks(mood, band, limit = 3, dayContext = null, genre = null) {
   const dayContextLabel = getTrustedDayContext(dayContext);
   const scored = TRACKS.map((track) => ({
     track,
-    score: scoreTrack(track, mood, band, dayContextLabel),
+    score: scoreTrack(track, mood, band, dayContextLabel, genre),
   })).filter(({ score }) => score > 0);
 
-  const fallbackPool = TRACKS.filter((t) => t.moods.includes(mood));
+  let fallbackPool = TRACKS.filter((t) => t.moods.includes(mood));
+  if (genre && genre !== "all") {
+    const genreFiltered = fallbackPool.filter((t) => t.tag === genre);
+    if (genreFiltered.length) fallbackPool = genreFiltered;
+  }
   const fallback = fallbackPool.length ? fallbackPool : TRACKS.filter((t) => t.moods.includes("okay"));
   const candidates = scored.length ? scored : fallback.map((track) => ({ track, score: 1 }));
 
@@ -273,7 +282,7 @@ function serializeDayContext(dayContext) {
  * detection is handled separately, upstream, in the controllers — this
  * function assumes that check has already passed.
  */
-export function buildSuggestion({ mood, intensity = 3, note }) {
+export function buildSuggestion({ mood, intensity = 3, note, genre = null }) {
   const classification = classifyText(note);
   const dayContext = classifyDayContext(note);
   const source = classification || dayContext ? "local-ml" : "curated";
@@ -284,22 +293,25 @@ export function buildSuggestion({ mood, intensity = 3, note }) {
       source,
       reflection: FLAT_REFLECTIONS[mood] || FLAT_REFLECTIONS.okay,
       groundingTip: FLAT_TIPS[mood] || FLAT_TIPS.okay,
-      tracks: pickTracks(mood, "low", 3, dayContext),
+      tracks: pickTracks(mood, "low", 3, dayContext, genre),
       noteInsight: buildNoteInsight(mood, classification),
       dayContext: serializedDayContext,
       dayContextInsight: buildDayContextInsight(dayContext),
+      selectedGenre: genre || "all",
     };
   }
 
   const band = maybeEscalateBand(computeBaseBand(intensity), mood, classification);
 
   return {
-      source,
-      reflection: BANDED_REFLECTIONS[mood]?.[band] || FLAT_REFLECTIONS.okay,
-      groundingTip: BANDED_TIPS[mood]?.[band] || FLAT_TIPS.okay,
-      tracks: pickTracks(mood, band, 3, dayContext),
-      noteInsight: buildNoteInsight(mood, classification),
-      dayContext: serializedDayContext,
-      dayContextInsight: buildDayContextInsight(dayContext),
-    };
+    source,
+    reflection: BANDED_REFLECTIONS[mood]?.[band] || FLAT_REFLECTIONS.okay,
+    groundingTip: BANDED_TIPS[mood]?.[band] || FLAT_TIPS.okay,
+    tracks: pickTracks(mood, band, 3, dayContext, genre),
+    noteInsight: buildNoteInsight(mood, classification),
+    dayContext: serializedDayContext,
+    dayContextInsight: buildDayContextInsight(dayContext),
+    selectedGenre: genre || "all",
+  };
 }
+

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import BreathingOrb from "../components/BreathingOrb.jsx";
 import MoodGrid from "../components/MoodGrid.jsx";
+import GenreSelector from "../components/GenreSelector.jsx";
 import TrackCard from "../components/TrackCard.jsx";
 import CrisisStrip from "../components/CrisisStrip.jsx";
 import api from "../api/axios.js";
@@ -10,6 +11,7 @@ export default function CalmSpace() {
 
   const [mood, setMood] = useState(null);
   const [note, setNote] = useState("");
+  const [genre, setGenre] = useState("all");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
@@ -24,7 +26,7 @@ export default function CalmSpace() {
     setSubmitting(true);
     setResult(null);
     try {
-      const res = await api.post("/music/suggest", { mood, note });
+      const res = await api.post("/music/suggest", { mood, note, genre });
       setResult(res.data);
     } catch (err) {
       setError(err.response?.data?.message || "Couldn't get a suggestion right now.");
@@ -84,22 +86,30 @@ export default function CalmSpace() {
                 setResult(null);
                 setMood(null);
                 setNote("");
+                setGenre("all");
               }}
               className="mt-6 text-sm text-mist hover:text-paper transition-colors"
             >
-              Try a different mood
+              Try a different mood or genre
             </button>
           </div>
         ) : (
           <form onSubmit={handleSuggest} className="max-w-lg space-y-6">
             <MoodGrid value={mood} onChange={setMood} />
-            <textarea
-              rows={2}
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="What happened today? Exam pressure, a win, a fight, low sleep..."
-              className="w-full rounded-xl px-4 py-3 bg-dusk border border-transparent focus:border-sage outline-none text-paper resize-none"
-            />
+            <GenreSelector value={genre} onChange={setGenre} />
+            <div>
+              <label htmlFor="calm-note" className="text-xs uppercase tracking-wider text-mist font-medium block mb-1.5">
+                What's on your mind? <span className="text-mist-dim">(optional note for AI text analysis)</span>
+              </label>
+              <textarea
+                id="calm-note"
+                rows={2}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="e.g. big exam coming up, fought with a classmate, feeling exhausted..."
+                className="w-full rounded-xl px-4 py-3 bg-dusk border border-transparent focus:border-sage outline-none text-paper resize-none text-sm"
+              />
+            </div>
             {error && <p className="text-sm" style={{ color: "#e08a8a" }}>{error}</p>}
             <button
               type="submit"
@@ -107,7 +117,7 @@ export default function CalmSpace() {
               className="py-3 px-6 rounded-full font-medium disabled:opacity-60"
               style={{ background: "var(--color-sage)", color: "var(--color-ink)" }}
             >
-              {submitting ? "Finding tracks..." : "Suggest music"}
+              {submitting ? "Analyzing & finding tracks..." : "Suggest music"}
             </button>
           </form>
         )}

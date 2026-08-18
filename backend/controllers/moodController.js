@@ -37,7 +37,7 @@ async function updateStreak(user) {
 // POST /api/moods
 export async function createMoodEntry(req, res, next) {
   try {
-    const { mood, intensity, note, context } = req.body;
+    const { mood, intensity, note, context, genre } = req.body;
 
     if (!mood) {
       res.status(400);
@@ -71,7 +71,7 @@ export async function createMoodEntry(req, res, next) {
     });
 
     const streakCount = await updateStreak(req.user);
-    const suggestion = buildSuggestion({ mood, intensity, note });
+    const suggestion = buildSuggestion({ mood, intensity, note, genre });
 
     res.status(201).json({
       entry,

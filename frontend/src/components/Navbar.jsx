@@ -39,6 +39,9 @@ export default function Navbar() {
               <NavLink to="/calm-space" className={({ isActive }) => `${linkBase} ${isActive ? "text-paper" : "text-mist"}`}>
                 Calm space
               </NavLink>
+              <NavLink to="/private-space" className={({ isActive }) => `${linkBase} ${isActive ? "text-paper font-semibold text-sage" : "text-mist"}`}>
+                Private Space
+              </NavLink>
               <NavLink to="/resources" className={({ isActive }) => `${linkBase} ${isActive ? "text-paper" : "text-mist"}`}>
                 Resources
               </NavLink>

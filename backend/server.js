@@ -9,6 +9,7 @@ import authRoutes from "./routes/authRoutes.js";
 import moodRoutes from "./routes/moodRoutes.js";
 import musicRoutes from "./routes/musicRoutes.js";
 import resourceRoutes from "./routes/resourceRoutes.js";
+import privateSpaceRoutes from "./routes/privateSpaceRoutes.js";
 
 dotenv.config();
 
@@ -40,6 +41,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/moods", moodRoutes);
 app.use("/api/music", musicRoutes);
 app.use("/api/resources", resourceRoutes);
+app.use("/api/private-space", privateSpaceRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
