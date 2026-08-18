@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  /* -- Design tokens: "late-night study desk", not neon cyberpunk --
+     ink    - the base background, a near-black with a soft blue undertone
+     dusk   - card / surface layer, one step up from ink
+     sage   - the "breathe" accent: grounding, used for calm actions
+     lamp   - the "desk lamp" accent: warm, used sparingly for emphasis
+     mist   - muted text / secondary content
+  */
+  --color-ink: #0f1220;
+  --color-ink-soft: #12162a;
+  --color-dusk: #1a1f30;
+  --color-dusk-light: #232a40;
+  --color-sage: #8fbfa8;
+  --color-sage-soft: #6fa088;
+  --color-lamp: #e8b769;
+  --color-lamp-soft: #c99a52;
+  --color-mist: #b8bfd4;
+  --color-mist-dim: #7d84a0;
+  --color-paper: #edeff5;
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+  ::selection {
+    background-color: var(--color-sage);
+    color: var(--color-ink);
+  }
+  *:focus-visible {
+    outline: 2px solid var(--color-lamp);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .eyebrow {
+    font-family: var(--font-mono);
+    text-transform: lowercase;
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    color: var(--color-mist-dim);
+  }
+
+  .glass-card {
+    background-color: color-mix(in srgb, var(--color-dusk) 80%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-mist) 12%, transparent);
+    backdrop-filter: blur(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

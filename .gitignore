@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Production builds
+dist/
+**/dist/
+
+# Logs and error logs
+*.log
+*.err
+
+# Environment variables
+.env
+*.env
+!.env.example
+
+# Tooling and OS metadata
+.agents/
+.DS_Store
+Thumbs.db
+
