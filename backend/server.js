@@ -26,6 +26,7 @@ app.use(
     credentials: true,
   })
 );
+console.log("CLIENT_URL =", process.env.CLIENT_URL);
 app.use(express.json({ limit: "10kb" }));
 
 // Basic abuse protection on auth routes (login/register brute forcing).
