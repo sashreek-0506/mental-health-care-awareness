@@ -26,6 +26,7 @@ app.set("trust proxy", 1);
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  "https://mental-health-care-awareness.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
 ].filter(Boolean);
@@ -33,7 +34,10 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.length === 0) {
+      if (!origin) return callback(null, true);
+      const cleanOrigin = origin.replace(/\/$/, "");
+      const isAllowed = allowedOrigins.some((o) => o.replace(/\/$/, "") === cleanOrigin);
+      if (isAllowed) {
         return callback(null, true);
       }
       return callback(null, true);
