@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import { connectDB } from "./config/db.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
@@ -23,9 +24,20 @@ const app = express();
 // Trust reverse proxy (e.g. Render / Heroku / Nginx) for express-rate-limit
 app.set("trust proxy", 1);
 
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:3000",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.length === 0) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
@@ -52,9 +64,9 @@ app.use("/api/music", musicRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/private-space", privateSpaceRoutes);
 
-// Serve static frontend files in production
-if (process.env.NODE_ENV === "production") {
-  const frontendDist = path.join(__dirname, "../frontend/dist");
+// Serve static frontend files in production (or whenever frontend/dist exists)
+const frontendDist = path.join(__dirname, "../frontend/dist");
+if (process.env.NODE_ENV === "production" || fs.existsSync(frontendDist)) {
   app.use(express.static(frontendDist));
   app.get("*", (req, res, next) => {
     if (req.path.startsWith("/api")) return next();
